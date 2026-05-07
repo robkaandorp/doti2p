@@ -3,6 +3,16 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
+
+    <PackageId>DotI2p</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Rob Kaandorp</Authors>
+    <Description>A .NET library for communicating with an I2Pd router via the SAM v3.1 protocol.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/robkaandorp/doti2p</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/robkaandorp/doti2p</RepositoryUrl>
+    <PackageTags>i2p;i2pd;sam;privacy;anonymity</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -12,6 +22,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Multiformats.Base" Version="2.0.2" />

@@ -9,10 +9,8 @@ A .NET library for communicating with an [I2Pd](https://i2pd.website/) router vi
 
 ## Installation
 
-Add a project reference to `DotI2p`:
-
 ```shell
-dotnet add reference path/to/DotI2p/DotI2p.csproj
+dotnet add package DotI2p
 ```
 
 ## Quick Start
