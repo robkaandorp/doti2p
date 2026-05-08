@@ -53,7 +53,7 @@ else
     {
         while (true)
         {
-            var virtualStream = samSession.CreateVirtualStream();
+            using var virtualStream = samSession.CreateVirtualStream();
             var acceptedConnection = await virtualStream.AcceptAsync();
 
             Console.WriteLine($"Accepted connection from {acceptedConnection.Destination.GetB32Hostname()}");

@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DotI2p
 {
-    public class SamVirtualStream
+    public class SamVirtualStream : IDisposable
     {
         private readonly SamConnection connection;
         private readonly string sessionId;
+        private bool disposedValue;
 
         public SamVirtualStream(SamConnection connection, string sessionId)
         {
@@ -67,6 +66,26 @@ namespace DotI2p
             }
 
             return new AcceptedConnection(new DestinationKey(acceptResponse.Split(' ')[0]), this.connection.GetTcpClient());
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    this.connection.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
