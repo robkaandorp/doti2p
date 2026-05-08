@@ -9,6 +9,8 @@ namespace DotI2p
 
         public string Id { get; } = Guid.NewGuid().ToString("N");
 
+        public DestinationKey? Destination { get; private set; }
+
         public SamSession(SamConnection connection)
         {
             this.connection = connection;
@@ -51,6 +53,7 @@ namespace DotI2p
                 throw ExceptionFactory.Create(response);
             }
 
+            this.Destination = destination;
             return destination;
         }
 
