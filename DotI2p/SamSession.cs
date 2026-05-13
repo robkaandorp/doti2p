@@ -41,7 +41,7 @@ namespace DotI2p
         public async Task<DestinationKey> CreateStreamAsync()
         {
             var destination = await this.GenerateDestinationKeyAsync();
-            var response = await this.connection.SendCommandAsync($"SESSION CREATE STYLE=STREAM ID={this.Id} DESTINATION={destination.PrivKey} i2cp.leaseSetEncType=4,0"); // 6,4,0?
+            var response = await this.connection.SendCommandAsync($"SESSION CREATE STYLE=STREAM ID={this.Id} DESTINATION={destination.PrivKey} i2cp.leaseSetEncType=6,4");
 
             if (!response.Response.Equals("SESSION STATUS", StringComparison.Ordinal))
             {
