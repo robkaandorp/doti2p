@@ -18,7 +18,7 @@ namespace DotI2p
 
         public async Task<DestinationKey> GenerateDestinationKeyAsync()
         {
-            var response = await this.connection.SendCommandAsync($"DEST GENERATE"); // SIGNATURE_TYPE=7
+            var response = await this.connection.SendCommandAsync($"DEST GENERATE SIGNATURE_TYPE=7"); // SIGNATURE_TYPE=7
 
             if (!response.Response.Equals("DEST REPLY", StringComparison.Ordinal))
             {

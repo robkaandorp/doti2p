@@ -12,8 +12,6 @@ namespace DotI2p
         private readonly IPAddress host;
         private readonly int port;
         private TcpClient? tcpClient;
-        private StreamWriter? writer;
-        private StreamReader? reader;
         private bool disposedValue;
 
         public SamConnection(int port = 7656)
@@ -31,9 +29,6 @@ namespace DotI2p
             await this.tcpClient.ConnectAsync(this.host, this.port);
 
             var stream = this.tcpClient.GetStream();
-            this.writer = new StreamWriter(stream);
-            this.reader = new StreamReader(stream);
-
             var response = await this.SendCommandAsync("HELLO VERSION MIN=3.1 MAX=3.1");
 
             if (!response.Response.Equals("HELLO REPLY", StringComparison.Ordinal))
@@ -49,27 +44,60 @@ namespace DotI2p
 
         public async Task<CommandResponse> SendCommandAsync(string command)
         {
-            if (this.writer == null || this.reader == null)
+            if (this.tcpClient == null || !this.tcpClient.Connected)
             {
                 throw new InvalidOperationException("Connection is not established.");
             }
 
-            this.writer.Write(command + "\n");
-            this.writer.Flush();
+            var stream = this.tcpClient.GetStream();
 
-            var response = await this.reader.ReadLineAsync();
+            await stream.WriteAsync(Encoding.UTF8.GetBytes(command + "\n"));
+            await stream.FlushAsync();
+
+            var response = await this.ReadLineAsync();
 
             return new CommandResponse(response);
         }
 
-        public async Task<string?> ReadLineAsync()
+        public async Task<string> ReadLineAsync()
         {
-            if (this.writer == null || this.reader == null)
+            if (this.tcpClient == null || !this.tcpClient.Connected)
             {
                 throw new InvalidOperationException("Connection is not established.");
             }
-            
-            return await this.reader.ReadLineAsync();
+
+            var stream = this.tcpClient.GetStream();
+            var buffer = new byte[4096];
+            var i = 0;
+
+            while (true)
+            {
+                var result = stream.ReadByte();
+
+                if (result < 0)
+                {
+                    throw new IOException("Connection closed by remote host.");
+                }
+
+                if (result == '\r')
+                {
+                    continue;
+                }
+
+                if (result == '\n')
+                {
+                    break;
+                }
+
+                buffer[i++] = (byte)result;
+
+                if (i >= buffer.Length)
+                {
+                    throw new IOException("Line too long.");
+                }
+            }
+
+            return Encoding.UTF8.GetString(buffer, 0, i);
         }
 
         public SamConnection CreateClone()
@@ -93,9 +121,8 @@ namespace DotI2p
             {
                 if (disposing)
                 {
-                    this.writer?.Dispose();
-                    this.reader?.Dispose();
                     this.tcpClient?.Close();
+                    this.tcpClient = null;
                 }
 
                 disposedValue = true;

@@ -19,7 +19,7 @@ namespace DotI2p
 
             this.Response = string.Join(" ", parts.Take(2));
             this.ResponseDictionary = parts.Skip(2)
-                .Select(part => part.Split('='))
+                .Select(part => part.Split('=', 2))
                 .ToDictionary(pair => pair[0], pair => pair.Length == 1 ? pair[0] : pair[1]);
         }
     }
