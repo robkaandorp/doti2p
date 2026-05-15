@@ -4,7 +4,7 @@ var samConnection = new SamConnection();
 await samConnection.ConnectAsync();
 
 var samSession = new SamSession(samConnection);
-var destination = await samSession.CreateStreamAsync();
+var destination = await samSession.CreatePrimarySessionAsync();
 
 Console.WriteLine($"SAM session created. Destination: {destination.GetB32Hostname()}");
 Console.WriteLine();
@@ -22,7 +22,8 @@ if (args.Length > 0)
         remoteDestination = new DestinationKey(args[0]);
     }
 
-    var virtualStream = samSession.CreateVirtualStream();
+    var samSubSession = await samSession.CreateSubSession();
+    var virtualStream = samSubSession.CreateVirtualStream();
     var client = await virtualStream.ConnectAsync(remoteDestination);
 
     Console.WriteLine($"Connected to {args[0]}");
@@ -53,7 +54,8 @@ else
     {
         while (true)
         {
-            var virtualStream = samSession.CreateVirtualStream();
+            var samSubSession = await samSession.CreateSubSession();
+            var virtualStream = samSubSession.CreateVirtualStream();
             var acceptedConnection = await virtualStream.AcceptAsync();
 
             Console.WriteLine($"Accepted connection from {acceptedConnection.Destination.GetB32Hostname()}");

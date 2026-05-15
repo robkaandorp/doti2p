@@ -40,6 +40,11 @@ namespace DotI2p
 
         public async Task<DestinationKey> CreateStreamAsync()
         {
+            if (this.Destination != null)
+            {
+                throw new InvalidOperationException("Session already created.");
+            }
+
             var destination = await this.GenerateDestinationKeyAsync();
             var response = await this.connection.SendCommandAsync($"SESSION CREATE STYLE=STREAM ID={this.Id} DESTINATION={destination.PrivKey} i2cp.leaseSetEncType=6,4,0");
 
@@ -77,6 +82,49 @@ namespace DotI2p
         public SamVirtualStream CreateVirtualStream()
         {
             return new SamVirtualStream(this.connection.CreateClone(), this.Id);
+        }
+
+        public async Task<DestinationKey> CreatePrimarySessionAsync()
+        {
+            if (this.Destination != null)
+            {
+                throw new InvalidOperationException("Session already created.");
+            }
+            
+            var destination = await this.GenerateDestinationKeyAsync();
+            var response = await this.connection.SendCommandAsync($"SESSION CREATE STYLE=MASTER ID={this.Id} DESTINATION={destination.PrivKey} i2cp.leaseSetEncType=6,4,0");
+
+            if (!response.Response.Equals("SESSION STATUS", StringComparison.Ordinal))
+            {
+                throw new Exception($"Unexpected response from SAM bridge: {response.OriginalResponse}");
+            }
+
+            if (!response.ResponseDictionary.TryGetValue("RESULT", out var result) || !result.Equals("OK", StringComparison.Ordinal))
+            {
+                throw ExceptionFactory.Create(response);
+            }
+
+            this.Destination = destination;
+            return destination;
+        }
+
+        public async Task<SamSubSession> CreateSubSession()
+        {
+            var subSessionId = Guid.NewGuid().ToString("N");
+            
+            var response = await this.connection.SendCommandAsync($"SESSION ADD STYLE=STREAM ID={subSessionId}");
+
+            if (!response.Response.Equals("SESSION STATUS", StringComparison.Ordinal))
+            {
+                throw new Exception($"Unexpected response from SAM bridge: {response.OriginalResponse}");
+            }
+
+            if (!response.ResponseDictionary.TryGetValue("RESULT", out var result) || !result.Equals("OK", StringComparison.Ordinal))
+            {
+                throw ExceptionFactory.Create(response);
+            }
+
+            return new SamSubSession(this.connection, subSessionId);
         }
     }
 }

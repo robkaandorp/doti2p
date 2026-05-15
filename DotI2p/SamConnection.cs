@@ -29,7 +29,7 @@ namespace DotI2p
             await this.tcpClient.ConnectAsync(this.host, this.port);
 
             var stream = this.tcpClient.GetStream();
-            var response = await this.SendCommandAsync("HELLO VERSION MIN=3.1 MAX=3.1");
+            var response = await this.SendCommandAsync("HELLO VERSION MIN=3.3 MAX=3.3");
 
             if (!response.Response.Equals("HELLO REPLY", StringComparison.Ordinal))
             {
