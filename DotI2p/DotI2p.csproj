@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
 
     <PackageId>DotI2p</PackageId>
-    <Version>0.2.0</Version>
+    <Version>0.2.1</Version>
     <Authors>Rob Kaandorp</Authors>
     <Description>A .NET library for communicating with an I2Pd router via the SAM v3.1 protocol.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
