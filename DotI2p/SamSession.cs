@@ -18,7 +18,7 @@ namespace DotI2p
 
         public async Task<DestinationKey> GenerateDestinationKeyAsync()
         {
-            var response = await this.connection.SendCommandAsync($"DEST GENERATE SIGNATURE_TYPE=7"); // SIGNATURE_TYPE=7
+            var response = await this.connection.SendCommandAsync($"DEST GENERATE SIGNATURE_TYPE=7");
 
             if (!response.Response.Equals("DEST REPLY", StringComparison.Ordinal))
             {
@@ -41,7 +41,7 @@ namespace DotI2p
         public async Task<DestinationKey> CreateStreamAsync()
         {
             var destination = await this.GenerateDestinationKeyAsync();
-            var response = await this.connection.SendCommandAsync($"SESSION CREATE STYLE=STREAM ID={this.Id} DESTINATION={destination.PrivKey} i2cp.leaseSetEncType=6,4");
+            var response = await this.connection.SendCommandAsync($"SESSION CREATE STYLE=STREAM ID={this.Id} DESTINATION={destination.PrivKey} i2cp.leaseSetEncType=6,4,0");
 
             if (!response.Response.Equals("SESSION STATUS", StringComparison.Ordinal))
             {
