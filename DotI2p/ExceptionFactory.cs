@@ -7,19 +7,40 @@ namespace DotI2p
         public I2pErrorException(string message) : base(message) { }
     }
 
-    public class NoVersionException : Exception { }
+    public class NoVersionException : Exception
+    {
+        public NoVersionException(string message) : base(message) { }
+    }
 
-    public class DuplicatedIdException : Exception { }
+    public class DuplicatedIdException : Exception
+    {
+        public DuplicatedIdException(string message) : base(message) { }
+    }
 
-    public class DuplicatedDestException : Exception { }
+    public class DuplicatedDestException : Exception
+    {
+        public DuplicatedDestException(string message) : base(message) { }
+    }
 
-    public class InvalidKeyException : Exception { }
+    public class InvalidKeyException : Exception
+    {
+        public InvalidKeyException(string message) : base(message) { }
+    }
 
-    public class CantReachPeerException : Exception { }
+    public class CantReachPeerException : Exception
+    {
+        public CantReachPeerException(string message) : base(message) { }
+    }
 
-    public class InvalidIdException : Exception { }
-    
-    public class TimeoutException : Exception { }
+    public class InvalidIdException : Exception
+    {
+        public InvalidIdException(string message) : base(message) { }
+    }
+
+    public class TimeoutException : Exception
+    {
+        public TimeoutException(string message) : base(message) { }
+    }
 
     public static class ExceptionFactory
     {
@@ -34,13 +55,13 @@ namespace DotI2p
             {
                 "OK" => new Exception($"SAM bridge returned OK: {response.OriginalResponse}"),
                 "I2P_ERROR" => new I2pErrorException(response.ResponseDictionary["MESSAGE"]),
-                "NOVERSION" => new NoVersionException(),
-                "DUPLICATED_ID" => new DuplicatedIdException(),
-                "DUPLICATED_DEST" => new DuplicatedDestException(),
-                "INVALID_KEY" => new InvalidKeyException(),
-                "CANT_REACH_PEER" => new CantReachPeerException(),
-                "INVALID_ID" => new InvalidIdException(),
-                "TIMEOUT" => new TimeoutException(),
+                "NOVERSION" => new NoVersionException(response.ResponseDictionary["MESSAGE"]),
+                "DUPLICATED_ID" => new DuplicatedIdException(response.ResponseDictionary["MESSAGE"]),
+                "DUPLICATED_DEST" => new DuplicatedDestException(response.ResponseDictionary["MESSAGE"]),
+                "INVALID_KEY" => new InvalidKeyException(response.ResponseDictionary["MESSAGE"]),
+                "CANT_REACH_PEER" => new CantReachPeerException(response.ResponseDictionary["MESSAGE"]),
+                "INVALID_ID" => new InvalidIdException(response.ResponseDictionary["MESSAGE"]),
+                "TIMEOUT" => new TimeoutException(response.ResponseDictionary["MESSAGE"]),
                 _ => new Exception($"SAM bridge returned an error: {response.OriginalResponse}"),
             };
         }

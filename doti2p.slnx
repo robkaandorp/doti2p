@@ -5,4 +5,5 @@
   </Folder>
   <Project Path="DotI2p/DotI2p.csproj" Id="2e8b7c68-6425-4e26-ae46-5c41180d888b" />
   <Project Path="SampleClient/SampleClient.csproj" Id="f3f48a5a-de5d-4c4d-bf69-dc8d10c82327" />
+  <Project Path="DotI2p.Tests/DotI2p.Tests.csproj" />
 </Solution>
