@@ -1,5 +1,7 @@
 ﻿using DotI2p;
 
+using SampleClient;
+
 var samConnection = new SamConnection();
 await samConnection.ConnectAsync();
 
@@ -22,72 +24,13 @@ if (args.Length > 0)
         remoteDestination = new DestinationKey(args[0]);
     }
 
-    var samSubSession = await samSession.CreateSubSession();
-    var virtualStream = samSubSession.CreateVirtualStream();
-    var client = await virtualStream.ConnectAsync(remoteDestination);
-
-    Console.WriteLine($"Connected to {args[0]}");
-
-    var clientStream = client.GetStream();
-    var writer = new StreamWriter(clientStream);
-    var reader = new StreamReader(clientStream);
-
-    _ = Task.Run(async () =>
-    {
-        while (await reader.ReadLineAsync() is string line)
-        {
-            Console.WriteLine($" > {line}");
-        }
-    });
-
-    while (Console.ReadLine() is string line)
-    {
-        writer.WriteLine(line);
-        writer.Flush();
-    }
+    //var client = new StreamClient(samSession, remoteDestination);
+    var client = new RawClient(samSession, remoteDestination);
+    await client.StartAsync();
 }
 else
 {
-    List<StreamWriter> writers = [];
-
-    _ = Task.Run(async () =>
-    {
-        while (true)
-        {
-            var samSubSession = await samSession.CreateSubSession();
-            var virtualStream = samSubSession.CreateVirtualStream();
-            var acceptedConnection = await virtualStream.AcceptAsync();
-
-            Console.WriteLine($"Accepted connection from {acceptedConnection.Destination.GetB32Hostname()}");
-
-            var clientStream = acceptedConnection.TcpClient.GetStream();
-
-            lock (writers)
-            {
-                writers.Add(new StreamWriter(clientStream));
-            }
-
-            _ = Task.Run(async () =>
-            {
-                var reader = new StreamReader(clientStream);
-
-                while (await reader.ReadLineAsync() is string line)
-                {
-                    Console.WriteLine($"{acceptedConnection.Destination.GetB32Hostname()[..8]}> {line}");
-                }
-            });
-        }
-    });
-
-    while (Console.ReadLine() is string line)
-    {
-        lock (writers)
-        {
-            foreach (var writer in writers)
-            {
-                writer.WriteLine(line);
-                writer.Flush();
-            }
-        }
-    }
+    //var server = new StreamServer(samSession);
+    var server = new RawServer(samSession);
+    await server.StartAsync();
 }

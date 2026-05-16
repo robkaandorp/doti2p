@@ -10,26 +10,34 @@ namespace DotI2p
     public class SamConnection : IDisposable
     {
         private readonly IPAddress host;
-        private readonly int port;
+        private readonly int tcpPort;
+        private readonly int udpPort;
         private TcpClient? tcpClient;
         private bool disposedValue;
 
-        public SamConnection(int port = 7656)
-            : this(IPAddress.Loopback, port) { }
+        public IPAddress Host => this.host;
 
-        public SamConnection(IPAddress host, int port = 7656)
+        public int TcpPort => this.tcpPort;
+
+        public int UdpPort => this.udpPort;
+
+        public SamConnection(int tcpPort = 7656, int udpPort = 7655)
+            : this(IPAddress.Loopback, tcpPort, udpPort) { }
+
+        public SamConnection(IPAddress host, int tcpPort = 7656, int udpPort = 7655)
         {
             this.host = host;
-            this.port = port;
+            this.tcpPort = tcpPort;
+            this.udpPort = udpPort;
         }
 
         public async Task ConnectAsync()
         {
             this.tcpClient = new TcpClient();
-            await this.tcpClient.ConnectAsync(this.host, this.port);
+            await this.tcpClient.ConnectAsync(this.host, this.tcpPort);
 
             var stream = this.tcpClient.GetStream();
-            var response = await this.SendCommandAsync("HELLO VERSION MIN=3.3 MAX=3.3");
+            var response = await this.SendCommandAsync("HELLO VERSION MIN=3.3");
 
             if (!response.Response.Equals("HELLO REPLY", StringComparison.Ordinal))
             {
@@ -102,7 +110,7 @@ namespace DotI2p
 
         public SamConnection CreateClone()
         {
-            return new SamConnection(this.host, this.port);
+            return new SamConnection(this.host, this.tcpPort, this.udpPort);
         }
 
         public TcpClient GetTcpClient()

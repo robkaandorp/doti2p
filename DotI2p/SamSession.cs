@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace DotI2p
@@ -90,9 +91,9 @@ namespace DotI2p
             {
                 throw new InvalidOperationException("Session already created.");
             }
-            
+
             var destination = await this.GenerateDestinationKeyAsync();
-            var response = await this.connection.SendCommandAsync($"SESSION CREATE STYLE=MASTER ID={this.Id} DESTINATION={destination.PrivKey} i2cp.leaseSetEncType=6,4,0");
+            var response = await this.connection.SendCommandAsync($"SESSION CREATE STYLE=MASTER ID={this.Id} DESTINATION={destination.PrivKey} i2cp.leaseSetEncType=6,4");
 
             if (!response.Response.Equals("SESSION STATUS", StringComparison.Ordinal))
             {
@@ -108,10 +109,10 @@ namespace DotI2p
             return destination;
         }
 
-        public async Task<SamSubSession> CreateSubSession()
+        public async Task<SamStreamSubSession> CreateStreamSubSession()
         {
             var subSessionId = Guid.NewGuid().ToString("N");
-            
+
             var response = await this.connection.SendCommandAsync($"SESSION ADD STYLE=STREAM ID={subSessionId}");
 
             if (!response.Response.Equals("SESSION STATUS", StringComparison.Ordinal))
@@ -124,7 +125,57 @@ namespace DotI2p
                 throw ExceptionFactory.Create(response);
             }
 
-            return new SamSubSession(this.connection, subSessionId);
+            return new SamStreamSubSession(this.connection, subSessionId);
+        }
+
+        public async Task<SamRawSubSession> CreateRawSubSession(RawSubSessionConfiguration config)
+        {
+            var subSessionId = Guid.NewGuid().ToString("N");
+            var command = $"SESSION ADD STYLE=RAW ID={subSessionId} PORT={config.Port}";
+
+            if (config.Host != null)
+            {
+                command += $" HOST={config.Host}";
+            }
+
+            if (config.FromPort != null)
+            {
+                command += $" FROM_PORT={config.FromPort}";
+            }
+
+            if (config.ToPort != null)
+            {
+                command += $" TO_PORT={config.ToPort}";
+            }
+
+            if (config.Protocol != null)
+            {
+                command += $" PROTOCOL={config.Protocol}";
+            }
+
+            if (config.ListenPort != null)
+            {
+                command += $" LISTEN_PORT={config.ListenPort}";
+            }
+
+            if (config.ListenProtocol != null)
+            {
+                command += $" LISTEN_PROTOCOL={config.ListenProtocol}";
+            }
+
+            var response = await this.connection.SendCommandAsync(command);
+
+            if (!response.Response.Equals("SESSION STATUS", StringComparison.Ordinal))
+            {
+                throw new Exception($"Unexpected response from SAM bridge: {response.OriginalResponse}");
+            }
+
+            if (!response.ResponseDictionary.TryGetValue("RESULT", out var result) || !result.Equals("OK", StringComparison.Ordinal))
+            {
+                throw ExceptionFactory.Create(response);
+            }
+
+            return new SamRawSubSession(subSessionId, new IPEndPoint(IPAddress.Any, config.Port), new IPEndPoint(this.connection.Host, this.connection.UdpPort));
         }
     }
 }

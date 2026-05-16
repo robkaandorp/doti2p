@@ -1,11 +1,11 @@
 ﻿namespace DotI2p
 {
-    public class SamSubSession
+    public class SamStreamSubSession
     {
         private readonly SamConnection connection;
         private readonly string subSessionId;
 
-        public SamSubSession(SamConnection connection, string subSessionId)
+        public SamStreamSubSession(SamConnection connection, string subSessionId)
         {
             this.connection = connection;
             this.subSessionId = subSessionId;

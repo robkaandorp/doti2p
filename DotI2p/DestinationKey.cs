@@ -8,6 +8,7 @@ namespace DotI2p
     public class DestinationKey
     {
         public string Destination { get; }
+
         public string? PrivKey { get; }
 
         public DestinationKey(string destination, string? privkey = null)
