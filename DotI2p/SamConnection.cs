@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DotI2p
@@ -14,6 +15,7 @@ namespace DotI2p
         private readonly int udpPort;
         private TcpClient? tcpClient;
         private bool disposedValue;
+        private readonly SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
 
         public IPAddress Host => this.host;
 
@@ -36,7 +38,6 @@ namespace DotI2p
             this.tcpClient = new TcpClient();
             await this.tcpClient.ConnectAsync(this.host, this.tcpPort);
 
-            var stream = this.tcpClient.GetStream();
             var response = await this.SendCommandAsync("HELLO VERSION MIN=3.3");
 
             if (!response.Response.Equals("HELLO REPLY", StringComparison.Ordinal))
@@ -52,19 +53,28 @@ namespace DotI2p
 
         public async Task<CommandResponse> SendCommandAsync(string command)
         {
-            if (this.tcpClient == null || !this.tcpClient.Connected)
+            await this.semaphoreSlim.WaitAsync();
+
+            try
             {
-                throw new InvalidOperationException("Connection is not established.");
+                if (this.tcpClient == null || !this.tcpClient.Connected)
+                {
+                    throw new InvalidOperationException("Connection is not established.");
+                }
+
+                var stream = this.tcpClient.GetStream();
+
+                await stream.WriteAsync(Encoding.UTF8.GetBytes(command + "\n"));
+                await stream.FlushAsync();
+
+                var response = await this.ReadLineAsync();
+
+                return new CommandResponse(response);
             }
-
-            var stream = this.tcpClient.GetStream();
-
-            await stream.WriteAsync(Encoding.UTF8.GetBytes(command + "\n"));
-            await stream.FlushAsync();
-
-            var response = await this.ReadLineAsync();
-
-            return new CommandResponse(response);
+            finally
+            {
+                semaphoreSlim.Release();
+            }
         }
 
         public async Task<string> ReadLineAsync()

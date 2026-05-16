@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DotI2p
@@ -104,6 +105,21 @@ namespace DotI2p
             {
                 throw ExceptionFactory.Create(response);
             }
+
+            _ = Task.Factory.StartNew(async () =>
+            {
+                while (true)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(30));
+
+                    var response = await this.connection.SendCommandAsync("PING");
+
+                    if (!response.Response.Equals("PONG", StringComparison.Ordinal))
+                    {
+                        Console.Error.WriteLine($"Did not receive PONG from SAM bridge: {response.OriginalResponse}");
+                    }
+                }
+            }, TaskCreationOptions.LongRunning);
 
             this.Destination = destination;
             return destination;
