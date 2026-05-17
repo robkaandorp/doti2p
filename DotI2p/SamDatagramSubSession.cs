@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 namespace DotI2p
 {
-    public class SamRawSubSession
+    public class SamDatagramSubSession
     {
         private readonly string subSessionId;
         private readonly IPEndPoint remoteEndPoint;
         private readonly UdpClient udpClient;
 
-        public SamRawSubSession(string subSessionId, IPEndPoint localEndPoint, IPEndPoint remoteEndPoint)
+        public SamDatagramSubSession(string subSessionId, IPEndPoint localEndPoint, IPEndPoint remoteEndPoint)
         {
             this.subSessionId = subSessionId;
             this.remoteEndPoint = remoteEndPoint;

@@ -144,10 +144,19 @@ namespace DotI2p
             return new SamStreamSubSession(this.connection, subSessionId);
         }
 
-        public async Task<SamRawSubSession> CreateRawSubSession(RawSubSessionConfiguration config)
+        public async Task<SamDatagramSubSession> CreateDatagramSubSession(DatagramSubSessionConfiguration config)
         {
             var subSessionId = Guid.NewGuid().ToString("N");
-            var command = $"SESSION ADD STYLE=RAW ID={subSessionId} PORT={config.Port}";
+            var style = config.Style switch
+            {
+                DatagramStyle.DATAGRAM => "DATAGRAM",
+                DatagramStyle.RAW => "RAW",
+                DatagramStyle.DATAGRAM2 => "DATAGRAM2",
+                DatagramStyle.DATAGRAM3 => "DATAGRAM3",
+                _ => throw new ArgumentException("Invalid UDP style.", nameof(config)),
+            };
+
+            var command = $"SESSION ADD STYLE={style} ID={subSessionId} PORT={config.Port}";
 
             if (config.Host != null)
             {
@@ -191,7 +200,7 @@ namespace DotI2p
                 throw ExceptionFactory.Create(response);
             }
 
-            return new SamRawSubSession(subSessionId, new IPEndPoint(IPAddress.Any, config.Port), new IPEndPoint(this.connection.Host, this.connection.UdpPort));
+            return new SamDatagramSubSession(subSessionId, new IPEndPoint(IPAddress.Any, config.Port), new IPEndPoint(this.connection.Host, this.connection.UdpPort));
         }
     }
 }
