@@ -51,17 +51,22 @@ namespace DotI2p
                 return new Exception($"Unexpected response: {response.OriginalResponse}");
             }
 
+            if (!response.ResponseDictionary.TryGetValue("MESSAGE", out var message))
+            {
+                message = response.OriginalResponse;
+            }
+
             return result switch
             {
                 "OK" => new Exception($"SAM bridge returned OK: {response.OriginalResponse}"),
-                "I2P_ERROR" => new I2pErrorException(response.ResponseDictionary["MESSAGE"]),
-                "NOVERSION" => new NoVersionException(response.ResponseDictionary["MESSAGE"]),
-                "DUPLICATED_ID" => new DuplicatedIdException(response.ResponseDictionary["MESSAGE"]),
-                "DUPLICATED_DEST" => new DuplicatedDestException(response.ResponseDictionary["MESSAGE"]),
-                "INVALID_KEY" => new InvalidKeyException(response.ResponseDictionary["MESSAGE"]),
-                "CANT_REACH_PEER" => new CantReachPeerException(response.ResponseDictionary["MESSAGE"]),
-                "INVALID_ID" => new InvalidIdException(response.ResponseDictionary["MESSAGE"]),
-                "TIMEOUT" => new TimeoutException(response.ResponseDictionary["MESSAGE"]),
+                "I2P_ERROR" => new I2pErrorException(message),
+                "NOVERSION" => new NoVersionException(message),
+                "DUPLICATED_ID" => new DuplicatedIdException(message),
+                "DUPLICATED_DEST" => new DuplicatedDestException(message),
+                "INVALID_KEY" => new InvalidKeyException(message),
+                "CANT_REACH_PEER" => new CantReachPeerException(message),
+                "INVALID_ID" => new InvalidIdException(message),
+                "TIMEOUT" => new TimeoutException(message),
                 _ => new Exception($"SAM bridge returned an error: {response.OriginalResponse}"),
             };
         }
