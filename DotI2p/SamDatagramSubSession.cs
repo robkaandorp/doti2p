@@ -18,6 +18,16 @@ namespace DotI2p
             this.udpClient = new UdpClient(localEndPoint);
         }
 
+        public async Task SendAsync(string destination, ushort toPort, byte[] data)
+        {
+            await this.SendAsync(destination, null, toPort, null, data);
+        }
+
+        public async Task SendAsync(string destination, ushort fromPort, ushort toPort, byte[] data)
+        {
+            await this.SendAsync(destination, fromPort, toPort, null, data);
+        }
+
         public async Task SendAsync(string destination, ushort? fromPort, ushort? toPort, ushort? protocol, byte[] data)
         {
             var command = $"3.3 {this.subSessionId} {destination}";
