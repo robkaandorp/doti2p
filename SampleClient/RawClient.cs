@@ -18,8 +18,14 @@ public class RawClient
     public async Task StartAsync()
     {
         var subSession = await samSession.CreateDatagramSubSession(
-            new DatagramSubSessionConfiguration(DatagramStyle.DATAGRAM, 16970) { FromPort = 6970, ListenPort = 6970 });
+            new DatagramSubSessionConfiguration(DatagramStyle.DATAGRAM, 0) { FromPort = 6970 });
 
         await subSession.SendAsync(remoteDestination.Destination, 6969, Encoding.UTF8.GetBytes("Hello, I2P!"));
+
+        var responseSubsession = await samSession.CreateDatagramSubSession(
+            new DatagramSubSessionConfiguration(DatagramStyle.RAW, 6970));
+        var response = await responseSubsession.ReceiveAsync();
+
+        Console.WriteLine(Encoding.UTF8.GetString(response));
     }
 }
