@@ -9,7 +9,7 @@ public class RawServer(SamSession samSession)
     public async Task StartAsync()
     {
         var rawSubSession = await samSession.CreateDatagramSubSession(
-            new DatagramSubSessionConfiguration(DatagramStyle.DATAGRAM, 6969) /*{ FromPort = 6969, ListenPort = 6969 }*/);
+            new DatagramSubSessionConfiguration(DatagramStyle.DATAGRAM2, 6969) /*{ FromPort = 6969, ListenPort = 6969 }*/);
 
         var replySubsession = await samSession.CreateDatagramSubSession(
             new DatagramSubSessionConfiguration(DatagramStyle.RAW, 0) /*{ FromPort = 6969, ListenPort = 6969 }*/);
