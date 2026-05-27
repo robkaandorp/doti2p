@@ -2,11 +2,32 @@
 
 using SampleClient;
 
+using System.Text.Json;
+
+DestinationKey? destination = null;
+
+if (args.Length == 0)
+{
+    // Server mode: reuse the previously saved destination.
+    if (File.Exists("destination.json"))
+    {
+        var destinationJson = await File.ReadAllTextAsync("destination.json");
+
+        if (!string.IsNullOrWhiteSpace(destinationJson))
+        {
+            destination = JsonSerializer.Deserialize<DestinationKey>(destinationJson);
+        }
+    }
+}
+
 var samConnection = new SamConnection();
 await samConnection.ConnectAsync();
 
 var samSession = new SamSession(samConnection);
-var destination = await samSession.CreatePrimarySessionAsync();
+destination = await samSession.CreatePrimarySessionAsync(destination);
+
+await File.WriteAllTextAsync("destination.json",
+    JsonSerializer.Serialize(destination, new JsonSerializerOptions { WriteIndented = true }));
 
 Console.WriteLine($"SAM session created. Destination: {destination.GetB32Hostname()}");
 Console.WriteLine();

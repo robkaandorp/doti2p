@@ -39,14 +39,18 @@ namespace DotI2p
             return new DestinationKey(response.ResponseDictionary["PUB"], response.ResponseDictionary["PRIV"]);
         }
 
-        public async Task<DestinationKey> CreateStreamAsync()
+        public async Task<DestinationKey> CreateStreamAsync(DestinationKey? destination = null)
         {
             if (this.Destination != null)
             {
                 throw new InvalidOperationException("Session already created.");
             }
 
-            var destination = await this.GenerateDestinationKeyAsync();
+            if (destination == null)
+            {
+                destination = await this.GenerateDestinationKeyAsync();
+            }
+
             var response = await this.connection.SendCommandAsync($"SESSION CREATE STYLE=STREAM ID={this.Id} DESTINATION={destination.PrivKey} i2cp.leaseSetEncType=6,4,0");
 
             if (!response.Response.Equals("SESSION STATUS", StringComparison.Ordinal))
@@ -85,14 +89,18 @@ namespace DotI2p
             return new SamVirtualStream(this.connection.CreateClone(), this.Id);
         }
 
-        public async Task<DestinationKey> CreatePrimarySessionAsync()
+        public async Task<DestinationKey> CreatePrimarySessionAsync(DestinationKey? destination = null)
         {
             if (this.Destination != null)
             {
                 throw new InvalidOperationException("Session already created.");
             }
 
-            var destination = await this.GenerateDestinationKeyAsync();
+            if (destination == null)
+            {
+                destination = await this.GenerateDestinationKeyAsync();
+            }
+
             var response = await this.connection.SendCommandAsync($"SESSION CREATE STYLE=MASTER ID={this.Id} DESTINATION={destination.PrivKey} i2cp.leaseSetEncType=6,4");
 
             if (!response.Response.Equals("SESSION STATUS", StringComparison.Ordinal))
