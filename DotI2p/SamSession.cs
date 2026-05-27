@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace DotI2p
@@ -200,7 +199,7 @@ namespace DotI2p
                 throw ExceptionFactory.Create(response);
             }
 
-            return new SamDatagramSubSession(subSessionId, new IPEndPoint(IPAddress.Any, config.Port), new IPEndPoint(this.connection.Host, this.connection.UdpPort));
+            return new SamDatagramSubSession(subSessionId, new IPEndPoint(IPAddress.Any, config.Port), new IPEndPoint(this.connection.Host, this.connection.UdpPort), config.Style);
         }
     }
 }
