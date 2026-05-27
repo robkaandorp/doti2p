@@ -78,7 +78,7 @@ namespace DotI2p
             var header = Encoding.UTF8.GetString(result.Buffer, 0, newlineIdx);
             var splittedHeader = header.Split(' ');
 
-            var destination = splittedHeader[0];
+            var destination = new DestinationKey(splittedHeader[0]);
             var fromPort = splittedHeader.SingleOrDefault(s => s.StartsWith("FROM_PORT="))?.Substring(10);
             var toPort = splittedHeader.SingleOrDefault(s => s.StartsWith("TO_PORT="))?.Substring(8);
 
@@ -100,7 +100,7 @@ namespace DotI2p
 
     public class DatagramReceiveResult
     {
-        public string? Destination { get; }
+        public DestinationKey? Destination { get; }
 
         public ushort? FromPort { get; }
 
@@ -113,7 +113,7 @@ namespace DotI2p
             this.Data = data;
         }
 
-        public DatagramReceiveResult(string destination, ushort? fromPort, ushort? toPort, ReadOnlyMemory<byte> data)
+        public DatagramReceiveResult(DestinationKey destination, ushort? fromPort, ushort? toPort, ReadOnlyMemory<byte> data)
         {
             this.Destination = destination;
             this.FromPort = fromPort;

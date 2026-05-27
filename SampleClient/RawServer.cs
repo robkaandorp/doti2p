@@ -18,7 +18,7 @@ public class RawServer(SamSession samSession)
         {
             var result = await rawSubSession.ReceiveAsync();
             
-            Console.WriteLine($"== From: {result.FromPort} To: {result.ToPort} ==");
+            Console.WriteLine($"== From: {result.Destination?.GetB32Hostname()}:{result.FromPort} To: {result.ToPort} ==");
             var text = Encoding.UTF8.GetString(result.Data.Span);
             Console.WriteLine(text);
 
@@ -27,7 +27,7 @@ public class RawServer(SamSession samSession)
                 continue;
             }    
 
-            await replySubsession.SendAsync(result.Destination, 6969, result.FromPort ?? 0, Encoding.UTF8.GetBytes("Reply: " + text));
+            await replySubsession.SendAsync(result.Destination.Destination, 6969, result.FromPort ?? 0, Encoding.UTF8.GetBytes("Reply: " + text));
         }
     }
 }
