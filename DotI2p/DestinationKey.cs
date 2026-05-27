@@ -17,14 +17,15 @@ namespace DotI2p
             this.PrivKey = privkey;
         }
 
-        public string GetB32Hostname()
+        public byte[] GetPubKeyHash()
         {
+            using var sha256 = SHA256.Create();
             var pubKey = Convert.FromBase64String(this.Destination.Replace('-', '+').Replace('~', '/'));
 
-            using var sha256 = SHA256.Create();
-            var hash = sha256.ComputeHash(pubKey);
-
-            return $"{Multibase.Encode(MultibaseEncoding.Base32Lower, hash)[1..]}.b32.i2p";
+            return sha256.ComputeHash(pubKey);
         }
+
+        public string GetB32Hostname() =>
+            $"{Multibase.Encode(MultibaseEncoding.Base32Lower, this.GetPubKeyHash())[1..]}.b32.i2p";
     }
 }
